@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE ZEN | Dashboard</title>
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Core layout using Flexbox to ensure the footer remains at the bottom of the viewport */
+        body { 
+            background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)), url('images/dashboardbackground.jpg'); 
+            background-size: cover; 
+            background-attachment: fixed; 
+            min-height: 100vh; 
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation styling */
+        .zen-nav { background: #000; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        
+        /* Glassmorphism UI effect */
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(15px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 20px; 
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .text-beige { color: #f5f5dc !important; }
+        
+        /* Headers to clearly separate session days in the schedule */
+        .day-header { 
+            border-left: 4px solid #f5f5dc; 
+            padding-left: 15px; 
+            margin: 30px 0 15px; 
+            color: #f5f5dc; 
+            font-size: 1.25rem; 
+        }
+
+        .session-item-card {
+            background: rgba(255, 255, 255, 0.08); 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px; 
+            padding: 15px; 
+            transition: 0.3s;
+        }
+
+        /* Notification bars (Check-ins and Drop Class) */
+        .zen-toast, .zen-toast-red {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 12px 0;
+            text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: none; z-index: 4000; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; font-size: 0.85rem;
+            animation: dropDown 0.4s ease-out;
+        }
+        .zen-toast { background: #f5f5dc; color: #1a1a1a; }
+        .zen-toast-red { background: rgba(220, 53, 69, 0.95); color: white; }
+
+        @keyframes dropDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+        /* Pop up notification for critical user confirmations (Logout/Drop Class) */
+        .zen-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 5000;
+        }
+        .zen-modal-card {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; padding: 40px; max-width: 400px; width: 90%; text-align: center;
+        }
+
+        /* Status badges (Upcoming and Attended) */
+        .status-badge { font-size: 0.65rem; padding: 4px 10px; border-radius: 50px; text-transform: uppercase; letter-spacing: 1px; }
+        .bg-upcoming { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid #ffc107; }
+        .bg-attended { background: rgba(40, 167, 69, 0.15); color: #98ffad; border: 1px solid #28a745; }
+
+        /* Icon buttons (Check-in, Undo, Drop) */
+        .btn-action-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid; transition: 0.3s; background: transparent; }
+        .btn-checkin { color: #0dcaf0; border-color: #0dcaf0; }
+        .btn-checkin:hover { background: #0dcaf0; color: white; }
+        .btn-undo { color: #ffc107; border-color: #ffc107; }
+        .btn-undo:hover { background: #ffc107; color: #1a1a1a; }
+        .btn-drop { color: #dc3545; border-color: #dc3545; }
+        .btn-drop:hover { background: #dc3545; color: white; }
+
+        .btn-modal-cancel { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 50px; padding: 8px 25px; }
+        .btn-modal-drop { background: #dc3545; border: none; color: white; border-radius: 50px; padding: 8px 25px; font-weight: bold; }
+
+        .hover-beige:hover { color: #f5f5dc !important; transition: 0.3s ease; }
+        .social-icons a { transition: transform 0.3s ease, color 0.3s ease; display: inline-block; }
+        .social-icons a:hover { transform: translateY(-5px); }
+
+        footer { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.05); background: rgba(0, 0, 0, 0.2); }
+
+        /* Custom link styling to remove default browser blue and underlines */
+        .empty-link { 
+            color: #f5f5dc !important; 
+            text-decoration: none !important; 
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .empty-link:hover { color: #ffffff !important; text-decoration: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="zenNotification" class="zen-toast">
+    <i class="fa-solid fa-leaf me-2"></i> <span id="toastMessage">Journey Updated</span>
+</div>
+
+<div id="zenNotificationRed" class="zen-toast-red">
+    <i class="fas fa-exclamation-circle me-2"></i> <span id="toastMessageRed">Session Removed</span>
+</div>
+
+<div id="dropModal" class="zen-modal-overlay">
+    <div class="zen-modal-card shadow-lg">
+        <h4 class="text-beige fw-bold mb-3" id="modalTitle">Drop Class?</h4>
+        <p class="text-white-50 mb-4 small" id="modalText">Are you sure you want to remove this session from your practice schedule?</p>
+        <div class="d-flex justify-content-center gap-3">
+            <button onclick="closeDropModal()" class="btn-modal-cancel">Cancel</button>
+            <button id="confirmDropBtn" class="btn-modal-drop">Yes</button>
+        </div>
+    </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark zen-nav shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="dashboard.html">
+            <img src="images/thezenlogo.png" alt="Logo" style="height: 40px;">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#zenNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="zenNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link text-beige fw-bold">Dashboard</a></li>
+                <li class="nav-item"><a href="register_class.html" class="nav-link text-white">Register Class</a></li>
+                <li class="nav-item"><a href="trainers.html" class="nav-link text-white">Trainers</a></li>
+                <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                    <button onclick="requestLogout()" class="btn btn-sm btn-outline-danger rounded-pill px-4">Logout</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-4">
+    <div class="row mb-4">
+        <div class="col-12 text-center text-lg-start">
+            <h2 class="fw-bold mb-0 text-white">Hello!</h2>
+            <p class="text-white-50">Welcome back to your sanctuary. Here is your practice schedule.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8 order-2 order-lg-1">
+            <div class="glass-card">
+                <h4 class="text-beige mb-2 text-center text-lg-start">
+                    <i class="fa-solid fa-calendar-check me-2"></i> My Sessions
+                </h4>
+                <div id="sessionList"></div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 order-1 order-lg-2">
+            <div class="glass-card text-center">
+                <h5 class="text-beige mb-3">Zen Wisdom</h5>
+                <p class="small font-italic text-white-50">"Yoga is the journey of the self, through the self, to the self."</p>
+                <hr class="border-secondary">
+                <div class="d-flex justify-content-around mt-3">
+                    <div><h3 class="mb-0 text-beige" id="totalClasses">0</h3><small class="text-white-50">Booked</small></div>
+                    <div><h3 class="mb-0 text-beige" id="attendedClasses">0</h3><small class="text-white-50">Attended</small></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 pb-5 pt-4">
+    <div class="container">
+        <hr class="border-secondary opacity-25 mb-5">
+        <div class="row g-4">
+            <div class="col-md-4 text-center text-md-start">
+                <img src="images/thezenlogo.png" alt="Logo" style="height: 35px;" class="mb-3 opacity-75">
+                <p class="small text-white-50 mb-1">
+                    <a href="https://maps.app.goo.gl/4bjMF59gHk3gsZ4Z6" target="_blank" class="text-decoration-none text-beige">
+                        <i class="fa-solid fa-location-dot me-2 text-beige"></i>
+                        The Zen, 123 Serenity Lane, Wellness District
+                    </a>
+                </p>
+                <p class="small text-white-50">40150 Shah Alam, Selangor</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <h6 class="text-beige fw-bold mb-3">Quick Navigation</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="dashboard.html" class="text-white-50 text-decoration-none hover-beige">My Dashboard</a></li>
+                    <li class="mb-2"><a href="register_class.html" class="text-white-50 text-decoration-none hover-beige">Book a Session</a></li>
+                    <li class="mb-2"><a href="trainers.html" class="text-white-50 text-decoration-none hover-beige">Our Trainers</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 text-center text-md-end">
+                <h6 class="text-beige fw-bold mb-3">Follow Our Journey</h6>
+                <div class="social-icons">
+                    <a href="https://www.instagram.com/keenoah" class="text-white-50 mx-2 hover-beige"><i class="fa-brands fa-instagram fa-lg"></i></a>
+                    <a href="https://www.facebook.com" class="text-white-50 mx-2 hover-beige"><i class="fa-brands fa-facebook fa-lg"></i></a>
+                    <a href="https://youtube.com/@keenoah" class="text-white-50 mx-2 hover-beige"><i class="fa-brands fa-youtube fa-lg"></i></a>
+                    <a href="https://www.tiktok.com/@keen0ah" class="text-white-50 mx-2 hover-beige"><i class="fa-brands fa-tiktok fa-lg"></i></a>
+                </div>
+                <p class="small text-white-50 mt-4">© 2025 THE ZEN Sanctuary.</p>
+            </div>
+        </div>
+    </div>
+    <p class="text-center small text-white-50 mt-3">
+        Disclaimer: This website is an educational project created for the IMS566 assignment by Muhammad Haziq Hazwan and Nur Filzatul Najwa.
+    </p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    /* Session security check: redirects unauthenticated users to the index page */
+    if (localStorage.getItem('isLoggedIn') !== 'true') { window.location.href = 'index.html'; }
+
+    let classToDrop = null;
+    let isLogout = false;
+
+    /* Toast notifications with auto-hide timer */
+    function showZenNotice(isRed, message) {
+        const toast = document.getElementById(isRed ? 'zenNotificationRed' : 'zenNotification');
+        const msg = document.getElementById(isRed ? 'toastMessageRed' : 'toastMessage');
+        msg.innerText = message;
+        toast.style.display = 'block';
+        toast.style.opacity = '1';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => { toast.style.display = 'none'; toast.style.opacity = '1'; }, 500);
+        }, 2500);
+    }
+
+    /* Core logic to retrieve LocalStorage data and dynamically render the schedule */
+    function renderDashboard() {
+        let myClasses = JSON.parse(localStorage.getItem('zen_my_classes')) || [];
+        const container = document.getElementById('sessionList');
+        document.getElementById('totalClasses').innerText = myClasses.length;
+        document.getElementById('attendedClasses').innerText = myClasses.filter(c => c.status === 'Attended').length;
+
+        /* If no classes are found in the user's schedule */
+        if (myClasses.length === 0) {
+            container.innerHTML = `<p class="text-center py-4 text-white-50">No practice sessions scheduled. <a href="register_class.html" class="empty-link">Register now</a></p>`;
+            return;
+        }
+
+        /* Organize sessions by Day of the Week */
+        const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        const grouped = {};
+        myClasses.forEach(c => {
+            const day = c.className.split(':')[0];
+            if (!grouped[day]) grouped[day] = [];
+            grouped[day].push(c);
+        });
+
+        container.innerHTML = "";
+        dayOrder.forEach(day => {
+            if (grouped[day]) {
+                let dayHtml = `<h5 class="day-header">${day}</h5><div class="row g-3 mb-4">`;
+                grouped[day].forEach(item => {
+                    const isAttended = item.status === 'Attended';
+                    dayHtml += `
+                        <div class="col-12">
+                            <div class="session-item-card d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1 fw-bold">${item.className.split(': ')[1]}</h6>
+                                    <div class="small text-white-50">${item.time} | ${item.instructor}</div>
+                                    <span class="status-badge ${isAttended ? 'bg-attended' : 'bg-upcoming'} d-inline-block mt-2">${item.status}</span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button onclick="${isAttended ? 'resetStatus' : 'checkIn'}(${item.id})" class="btn-action-sm ${isAttended ? 'btn-undo' : 'btn-checkin'}"><i class="fa-solid ${isAttended ? 'fa-rotate-left' : 'fa-check'}"></i></button>
+                                    <button onclick="openDropModal(${item.id})" class="btn-action-sm btn-drop"><i class="fa-solid fa-trash-can"></i></button>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML += dayHtml + "</div>";
+            }
+        });
+    }
+
+    /* Functions to handle modal triggering and state management */
+    function openDropModal(classId) { 
+        isLogout = false; 
+        classToDrop = classId; 
+        document.getElementById('modalTitle').innerText = "Drop Class?";
+        document.getElementById('modalText').innerText = "Are you sure you want to remove this session?";
+        document.getElementById('dropModal').style.display = 'flex'; 
+    }
+
+    function requestLogout() { 
+        isLogout = true; 
+        document.getElementById('modalTitle').innerText = "Leave Sanctuary?";
+        document.getElementById('modalText').innerText = "Are you sure you want to log out from THE ZEN?";
+        document.getElementById('dropModal').style.display = 'flex'; 
+    }
+
+    function closeDropModal() { document.getElementById('dropModal').style.display = 'none'; classToDrop = null; }
+
+    /* Modal confirmation logic, differentiating between Logout and Drop Class actions */
+    document.getElementById('confirmDropBtn').addEventListener('click', () => {
+        if (isLogout) {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'index.html';
+        } else if (classToDrop !== null) {
+            let myClasses = JSON.parse(localStorage.getItem('zen_my_classes')) || [];
+            myClasses = myClasses.filter(c => c.id !== classToDrop);
+            localStorage.setItem('zen_my_classes', JSON.stringify(myClasses));
+            closeDropModal();
+            showZenNotice(true, "Journey adjusted. Session removed.");
+            renderDashboard();
+        }
+    });
+
+    /* CRUD for updating class status  */
+    function checkIn(id) { updateStatus(id, 'Attended', "Focus achieved! Session attended."); }
+    function resetStatus(id) { updateStatus(id, 'Upcoming', "Journey reset. Status is now Upcoming."); }
+    function updateStatus(id, status, msg) {
+        let classes = JSON.parse(localStorage.getItem('zen_my_classes'));
+        localStorage.setItem('zen_my_classes', JSON.stringify(classes.map(c => c.id === id ? {...c, status} : c)));
+        showZenNotice(false, msg); 
+        renderDashboard();
+    }
+
+    renderDashboard();
+</script>
+</body>
+</html>

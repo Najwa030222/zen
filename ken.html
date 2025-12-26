@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Ken | Trainer Profile</title>
+
+    <link rel="icon" type="image/png" href="images/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+                        url('images/loginbackground.jpg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* Card that holds all trainer information */
+        .bio-card {
+            background: rgba(245, 245, 220, 0.95);
+            border-radius: 20px;
+            padding: 35px;
+            max-width: 750px;
+            margin: 70px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .trainer-img {
+            width: 170px;
+            height: 170px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #fff;
+        }
+
+        /* Section headings like About, Details, etc. */
+        .section-title {
+            font-weight: 600;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .btn-zen {
+            background-color: #1a1a1a;
+            color: #f5f5dc;
+            border-radius: 50px;
+            padding: 10px 25px;
+            transition: 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-zen:hover {
+            background-color: #000;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card bio-card">
+
+        <!--Trainer's image, name and role-->
+        <div class="text-center">
+            <img src="images/trainer4.jpg" alt="Master Ken" class="trainer-img mb-3">
+            <h2 class="mb-1">Master Ken</h2>
+            <p class="text-muted">Hatha Specialist</p>
+        </div>
+
+        <!--About trainer section-->
+        <h5 class="section-title">About the Trainer</h5>
+        <p>
+            Master Ken is a dedicated Hatha Yoga specialist with over 15 years of teaching experience.
+            His sessions focus on balance, posture alignment, and breath control, making them ideal for
+            beginners and those seeking a strong foundation.
+        </p>
+
+        <!--Trainer's details information section-->
+        <h5 class="section-title">Professional Details</h5>
+        <ul class="list-group list-group-flush">
+           <li class="list-group-item bg-transparent border-0">
+                <strong>Experience:</strong> 15+ years
+            </li>
+            <li class="list-group-item bg-transparent border-0">
+                <strong>Specialization:</strong> Hatha Yoga, Breath Control, Posture Alignment
+            </li>
+            <li class="list-group-item bg-transparent border-0">
+                <strong>Certifications:</strong> International Hatha Yoga Certification
+            </li>
+            <li class="list-group-item bg-transparent border-0">
+                <strong>Achievements:</strong> Trained over 1,000 students, Senior yoga mentor
+            </li>
+        </ul>
+
+        <!--Trainer's teaching philosophy section-->
+        <h5 class="section-title">Teaching Philosophy</h5>
+        <p>
+            Master Ken believes that a strong foundation is the key to a successful yoga
+            practice. His calm and disciplined teaching style helps students develop balance,
+            awareness, and inner strength.
+        </p>
+
+        <!--Trainers contact information section-->
+        <h5 class="section-title">Contact Information</h5>
+            <p class="mb-2">
+                <!--Email with icon-->
+                <i class="bi bi-envelope-fill me-2"></i>
+                <strong>Email:</strong> masterken@thezen.com
+            </p>
+            <p class="mb-0">
+                <!--Phone number with icon-->
+                <i class="bi bi-telephone-fill me-2"></i>
+                <strong>Phone:</strong> +60 11-234 5678
+            </p>
+
+        <!--Back to trainers page button-->
+        <div class="text-center mt-4">
+            <a href="trainers.html" class="btn btn-zen">← Back to Trainers</a>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
